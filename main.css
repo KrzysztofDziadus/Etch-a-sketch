@@ -3,9 +3,9 @@
     margin: auto;
 }
 
-#header {
+#header{
     border-radius: 7px;
-    border: 1px solid rgb(61, 106, 255);
+    border: 2px solid rgb(61, 106, 255);
     color: #e1e3f7;
     text-align: center;
     font-size: 48px;
@@ -13,6 +13,16 @@
     margin: 20px auto ;
 }
 
+#footer{
+    text-align: center;
+    font-size: 12px;
+    margin: 20px auto;
+    color: #e1e3f7;
+}
+#footer  a{
+    text-decoration: none;
+    color: #e1e3f7;
+}
 #container{
     display: flex;
     width: min-content;
