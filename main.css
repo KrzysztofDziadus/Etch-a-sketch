@@ -37,6 +37,10 @@ body {
     display: flex;
     justify-content: center;
     user-select: none;
+    color: #60657a;
+}
+.header{
+    padding-left: 300px;
 }
 
 .main {
@@ -134,4 +138,26 @@ input[type="color"] {
 
 .borderBottom, .borderRight, .borderTopLeft{
     border-color: #262833;
+}
+
+.footer{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px;
+    font-size: 20px;
+}
+
+.fa-github {
+    color: #60657a;
+    font-size: 24px;
+    transition: transform 4.3s ease-in-out;
+}
+.fa-github:hover {
+    transform: rotate(360deg) scale(1.3);
 }
