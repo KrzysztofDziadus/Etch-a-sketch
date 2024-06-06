@@ -1,11 +1,14 @@
-let buttonCreate = document.querySelector(".btnCreate");
+let btnBorder = document.querySelector(".btnBorder");
 let gridBox = document.querySelector(".grid");
-let number = document.querySelector(".number");
+let sizeSLizer = document.querySelector(".number");
 let randomColorBtn = document.querySelector(".btnRandomColor");
 let rainbowBtn = document.querySelector(".rainbow");
 let clearBtn = document.querySelector(".btnClear");
 let colorBtn = document.querySelector('.colorBtn');
-let spanWord = document.querySelector(".spanBox");
+let eraserBtn = document.querySelector(".eraser");
+let spanBox = document.querySelector('.spanBox');
+let displaySize = document.querySelector(".displayNumber");
+
 
 const DEFAULT_SIZE = 15;
 const DEFAULT_MODE = 'color';
@@ -15,7 +18,12 @@ let currentMode = DEFAULT_MODE;
 let currentSize = DEFAULT_SIZE;
 let currentColor = DEFAULT_COLOR;
 
+let mouseDown = false;
+document.body.onmousedown = () => (mouseDown = true);
+document.body.onmouseup = () => (mouseDown = false);
+
 function setCurrentMode(mode){
+    activeButton(mode);
     currentMode = mode;
 }
 function setCurrentSize(size){
@@ -24,14 +32,13 @@ function setCurrentSize(size){
 function setCurrentColor(color){
     currentColor = color;
 }
-
-function activateBtn(newMode){
-
+function reloadGrid() {
+    clearGrid();
+    setupGrid(currentSize)
 }
 function clearGrid() {
-    console.log('clear')
     gridBox.innerHTML = '';
-    number.value = '';
+
 }
 
 function getRandomNumber() {
@@ -47,41 +54,103 @@ function setupGrid(size) {
     gridBox.style.gridTemplateRows = `repeat(${size}, 1fr)`;
     for (let i = 0; i < size ** 2; i++) {
         let gridChild = document.createElement('div');
-        gridChild.classList.add('boxStyle')
-        gridBox.appendChild(gridChild)
-        gridChild.addEventListener('mouseover', changeColor)
+        gridChild.classList.add('boxStyle');
+        gridBox.appendChild(gridChild);
+        gridChild.addEventListener('mouseover', changeColor);
+        gridChild.addEventListener('click', changeColor);
+    }
+}
+
+
+function toggleBorder(){
+    let gridChildren = document.querySelectorAll('.boxStyle')
+    for (let i = 0; i < gridChildren.length; i++) {
+        gridChildren[i].classList.toggle('borderTopLeft')
+        gridChildren[i].classList.toggle('borderRight')
+        gridChildren[i].classList.toggle('borderBottom')
+    }
+
+}
+function updateDisplayValue(){
+    displaySize.innerHTML = `${sizeSLizer.value} x ${sizeSLizer.value}`
+}
+function changeSize(){
+    setCurrentSize(sizeSLizer.value)
+    setupGrid()
+    reloadGrid()
+    updateDisplayValue()
+
+}
+
+function activeButton(mode){
+    if (currentMode === 'rainbow') {
+        rainbowBtn.classList.remove('clicked')
+    } else if (currentMode === 'color') {
+        spanBox.classList.remove('clicked')
+    } else if (currentMode === 'eraser') {
+        eraserBtn.classList.remove('clicked')
+    }else if (currentMode === 'random') {
+        randomColorBtn.classList.remove('clicked')
+    }
+    if (mode === 'rainbow') {
+        rainbowBtn.classList.add('clicked')
+    } else if (mode === 'color') {
+        spanBox.classList.add('clicked')
+    } else if (mode === 'eraser') {
+        eraserBtn.classList.add('clicked')
+    }else if (mode === 'random') {
+        randomColorBtn.classList.add('clicked')
     }
 }
 
 function changeColor(e){
+    if (e.type === 'mouseover' && !mouseDown) return
     if (currentMode === 'rainbow') {
-        // const randomR = Math.floor(Math.random() * 256)
-        // const randomG = Math.floor(Math.random() * 256)
-        // const randomB = Math.floor(Math.random() * 256)
         e.target.style.backgroundColor = randomRGB();
     }else if (currentMode === 'color') {
         e.target.style.backgroundColor = currentColor
     } else if (currentMode === 'random') {
         e.target.style.backgroundColor = currentColor
+    }else if(currentMode === 'eraser'){
+        e.target.style.backgroundColor = '#3a3c4e';
     }
 }
 let getColor = function(e){
     setCurrentMode('color')
     setCurrentColor(e.target.value)
-    spanWord.classList.add('color')
 }
 
-function setRandomColor(){
+function getPreviousColor(){
+    setCurrentMode('color')
+    setCurrentColor(colorBtn.value)
+    console.log('click')
+}
+
+function setRandomColor(e){
     setCurrentMode('random')
     setCurrentColor(randomRGB())
-    console.log("random color")
+    e.target.style.color = `${currentColor}`
 }
 function setRainbowColor(){
     setCurrentMode('rainbow')
 }
 
-buttonCreate.addEventListener('click', () => setupGrid(number.value));
-clearBtn.addEventListener('click', () => clearGrid());
+function setEraser(){
+    setCurrentMode('eraser')
+}
+
+
+
+sizeSLizer.addEventListener('click', () => changeSize())
+
+clearBtn.addEventListener('click', () => reloadGrid());
 randomColorBtn.addEventListener('click', setRandomColor);
 rainbowBtn.addEventListener('click', setRainbowColor);
 colorBtn.addEventListener('input', getColor);
+spanBox.addEventListener('click', getPreviousColor);
+eraserBtn.addEventListener('click', setEraser)
+btnBorder.addEventListener('click', () => toggleBorder())
+
+window.onload = () => {
+    setupGrid(currentSize)
+}
