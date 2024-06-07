@@ -63,14 +63,29 @@ function setupGrid(size) {
 
 
 function toggleBorder(){
+    if (isClicked()){
+        btnBorder.textContent = 'Hide Border'
+    }else{btnBorder.textContent = 'Show Border'}
     let gridChildren = document.querySelectorAll('.boxStyle')
+    let lastColumnChilds = document.querySelectorAll(`.boxStyle:nth-child(${currentSize}n)`)
     for (let i = 0; i < gridChildren.length; i++) {
         gridChildren[i].classList.toggle('borderTopLeft')
-        gridChildren[i].classList.toggle('borderRight')
-        gridChildren[i].classList.toggle('borderBottom')
     }
-
+    if (lastColumnChilds){
+        for (let i = 0; i < lastColumnChilds.length; i++) {
+            lastColumnChilds[i].classList.toggle('borderRight')
+        }
+    }
+    let lastRowChilds = Array.from(gridChildren).slice(-`${currentSize}`);
+    for (let rowChild of lastRowChilds){
+        rowChild.classList.toggle('borderBottom')
+    }
 }
+let clicked = false
+function isClicked(){
+   return  clicked = clicked === false;
+}
+
 function updateDisplayValue(){
     displaySize.innerHTML = `${sizeSLizer.value} x ${sizeSLizer.value}`
 }
@@ -123,7 +138,6 @@ let getColor = function(e){
 function getPreviousColor(){
     setCurrentMode('color')
     setCurrentColor(colorBtn.value)
-    console.log('click')
 }
 
 function setRandomColor(e){
