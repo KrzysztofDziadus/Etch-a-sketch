@@ -8,12 +8,14 @@ let colorBtn = document.querySelector('.colorBtn');
 let eraserBtn = document.querySelector(".eraser");
 let spanBox = document.querySelector('.spanBox');
 let displaySize = document.querySelector(".displayNumber");
+let paintBtn = document.querySelector(".paint");
 
 
 const DEFAULT_SIZE = 15;
 const DEFAULT_MODE = 'color';
 const DEFAULT_COLOR = '#333333';
 
+let stopFunction= false;
 let currentMode = DEFAULT_MODE;
 let currentSize = DEFAULT_SIZE;
 let currentColor = DEFAULT_COLOR;
@@ -22,22 +24,28 @@ let mouseDown = false;
 document.body.onmousedown = () => (mouseDown = true);
 document.body.onmouseup = () => (mouseDown = false);
 
-function setCurrentMode(mode){
+
+function setCurrentMode(mode) {
     activeButton(mode);
     currentMode = mode;
 }
-function setCurrentSize(size){
+
+function setCurrentSize(size) {
     currentSize = size;
 }
-function setCurrentColor(color){
+
+function setCurrentColor(color) {
     currentColor = color;
 }
+
 function reloadGrid() {
     clearGrid();
     setupGrid(currentSize)
 }
+
 function clearGrid() {
     gridBox.innerHTML = '';
+    setCurrentMode(DEFAULT_MODE)
 
 }
 
@@ -45,7 +53,7 @@ function getRandomNumber() {
     return Math.floor(Math.random() * 255);
 }
 
-let randomRGB = function() {
+let randomRGB = function () {
     return `rgb(${getRandomNumber()},${getRandomNumber()},${getRandomNumber()})`
 }
 
@@ -62,50 +70,57 @@ function setupGrid(size) {
 }
 
 
-function toggleBorder(){
-    if (isClicked()){
+function toggleBorder() {
+    if (isClicked()) {
         btnBorder.textContent = 'Hide Border'
-    }else{btnBorder.textContent = 'Show Border'}
+    } else {
+        btnBorder.textContent = 'Show Border'
+    }
     let gridChildren = document.querySelectorAll('.boxStyle')
     let lastColumnChilds = document.querySelectorAll(`.boxStyle:nth-child(${currentSize}n)`)
     for (let i = 0; i < gridChildren.length; i++) {
         gridChildren[i].classList.toggle('borderTopLeft')
     }
-    if (lastColumnChilds){
+    if (lastColumnChilds) {
         for (let i = 0; i < lastColumnChilds.length; i++) {
             lastColumnChilds[i].classList.toggle('borderRight')
         }
     }
     let lastRowChilds = Array.from(gridChildren).slice(-`${currentSize}`);
-    for (let rowChild of lastRowChilds){
+    for (let rowChild of lastRowChilds) {
         rowChild.classList.toggle('borderBottom')
     }
 }
+
 let clicked = false
-function isClicked(){
-   return  clicked = clicked === false;
+
+function isClicked() {
+    return clicked = clicked === false;
 }
 
-function updateDisplayValue(){
+function updateDisplayValue() {
     displaySize.innerHTML = `${sizeSLizer.value} x ${sizeSLizer.value}`
 }
-function changeSize(){
+
+function changeSize() {
     setCurrentSize(sizeSLizer.value)
     setupGrid()
     reloadGrid()
     updateDisplayValue()
-
+    setCurrentMode(DEFAULT_MODE)
 }
 
-function activeButton(mode){
+function activeButton(mode) {
     if (currentMode === 'rainbow') {
         rainbowBtn.classList.remove('clicked')
     } else if (currentMode === 'color') {
         spanBox.classList.remove('clicked')
     } else if (currentMode === 'eraser') {
         eraserBtn.classList.remove('clicked')
-    }else if (currentMode === 'random') {
+    } else if (currentMode === 'random') {
         randomColorBtn.classList.remove('clicked')
+    } else if (currentMode === 'paint') {
+        paintBtn.classList.remove('clicked')
     }
     if (mode === 'rainbow') {
         rainbowBtn.classList.add('clicked')
@@ -113,50 +128,93 @@ function activeButton(mode){
         spanBox.classList.add('clicked')
     } else if (mode === 'eraser') {
         eraserBtn.classList.add('clicked')
-    }else if (mode === 'random') {
+    } else if (mode === 'random') {
         randomColorBtn.classList.add('clicked')
+    } else if (mode === 'paint') {
+        paintBtn.classList.add('clicked')
     }
 }
 
-function changeColor(e){
-    if (e.type === 'mouseover' && !mouseDown) return
+function changeColor(e) {
+    if (stopFunction) return;
+    if (e.type === 'mouseover' && !mouseDown) return;
     if (currentMode === 'rainbow') {
         e.target.style.backgroundColor = randomRGB();
-    }else if (currentMode === 'color') {
+    } else if (currentMode === 'color') {
         e.target.style.backgroundColor = currentColor
     } else if (currentMode === 'random') {
         e.target.style.backgroundColor = currentColor
-    }else if(currentMode === 'eraser'){
+    } else if (currentMode === 'eraser') {
         e.target.style.backgroundColor = '#3a3c4e';
+    } else if (currentMode === 'paint') {
+        e.target.style.backgroundColor = currentColor;
     }
 }
-let getColor = function(e){
+
+let getColor = function (e) {
     setCurrentMode('color')
     setCurrentColor(e.target.value)
 }
 
-function getPreviousColor(){
+function getPreviousColor() {
     setCurrentMode('color')
     setCurrentColor(colorBtn.value)
 }
 
-function setRandomColor(e){
+function setRandomColor(e) {
     setCurrentMode('random')
     setCurrentColor(randomRGB())
     e.target.style.color = `${currentColor}`
 }
-function setRainbowColor(){
+
+function setRainbowColor() {
     setCurrentMode('rainbow')
 }
 
-function setEraser(){
+function setEraser() {
     setCurrentMode('eraser')
 }
 
+function paint() {
+    setCurrentMode('paint');
+    getOldColor();
+    setCurrentColor(colorBtn.value)
+    findChildPosition()
+}
 
-
+function getOldColor(){
+    let gridChilds = Array.from(document.querySelectorAll(`.boxStyle`));
+    for (let child of gridChilds) {
+        child.addEventListener('click', () => {
+            return child.style.backgroundColor;
+        })
+    }
+}
+function findChildPosition() {
+    stopFunction = true;
+    let gridChilds = Array.from(document.querySelectorAll(`.boxStyle`));
+    for (let [i, child] of gridChilds.entries()) {
+        child.addEventListener('click', () => {
+            let size = parseInt(currentSize)
+            gridChilds[i].style.backgroundColor = currentColor;
+            if (i - 1 >= 0) {
+                gridChilds[i - 1].style.backgroundColor = currentColor;
+            }
+            if (i - size >= 0) {
+                gridChilds[i - size].style.backgroundColor = currentColor;
+            }
+            if (i + 1 < gridChilds.length) {
+                gridChilds[i + 1].style.backgroundColor = currentColor;
+            }
+            if (i + size < gridChilds.length) {
+                gridChilds[i + size].style.backgroundColor = currentColor;
+                stopFunction = false;
+                setCurrentMode(DEFAULT_MODE)
+            }
+        })
+    }
+}
 sizeSLizer.addEventListener('click', () => changeSize())
-
 clearBtn.addEventListener('click', () => reloadGrid());
 randomColorBtn.addEventListener('click', setRandomColor);
 rainbowBtn.addEventListener('click', setRainbowColor);
@@ -164,7 +222,8 @@ colorBtn.addEventListener('input', getColor);
 spanBox.addEventListener('click', getPreviousColor);
 eraserBtn.addEventListener('click', setEraser)
 btnBorder.addEventListener('click', () => toggleBorder())
-
+paintBtn.addEventListener('click', paint);
 window.onload = () => {
     setupGrid(currentSize)
+    spanBox.classList.add('clicked')
 }
