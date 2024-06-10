@@ -15,7 +15,7 @@ const DEFAULT_SIZE = 15;
 const DEFAULT_MODE = 'color';
 const DEFAULT_COLOR = '#333333';
 
-let stopFunction= false;
+let stopFunction = false;
 let currentMode = DEFAULT_MODE;
 let currentSize = DEFAULT_SIZE;
 let currentColor = DEFAULT_COLOR;
@@ -175,45 +175,7 @@ function setEraser() {
     setCurrentMode('eraser')
 }
 
-function paint() {
-    setCurrentMode('paint');
-    getOldColor();
-    setCurrentColor(colorBtn.value)
-    findChildPosition()
-}
 
-function getOldColor(){
-    let gridChilds = Array.from(document.querySelectorAll(`.boxStyle`));
-    for (let child of gridChilds) {
-        child.addEventListener('click', () => {
-            return child.style.backgroundColor;
-        })
-    }
-}
-function findChildPosition() {
-    stopFunction = true;
-    let gridChilds = Array.from(document.querySelectorAll(`.boxStyle`));
-    for (let [i, child] of gridChilds.entries()) {
-        child.addEventListener('click', () => {
-            let size = parseInt(currentSize)
-            gridChilds[i].style.backgroundColor = currentColor;
-            if (i - 1 >= 0) {
-                gridChilds[i - 1].style.backgroundColor = currentColor;
-            }
-            if (i - size >= 0) {
-                gridChilds[i - size].style.backgroundColor = currentColor;
-            }
-            if (i + 1 < gridChilds.length) {
-                gridChilds[i + 1].style.backgroundColor = currentColor;
-            }
-            if (i + size < gridChilds.length) {
-                gridChilds[i + size].style.backgroundColor = currentColor;
-                stopFunction = false;
-                setCurrentMode(DEFAULT_MODE)
-            }
-        })
-    }
-}
 sizeSLizer.addEventListener('click', () => changeSize())
 clearBtn.addEventListener('click', () => reloadGrid());
 randomColorBtn.addEventListener('click', setRandomColor);
@@ -222,7 +184,8 @@ colorBtn.addEventListener('input', getColor);
 spanBox.addEventListener('click', getPreviousColor);
 eraserBtn.addEventListener('click', setEraser)
 btnBorder.addEventListener('click', () => toggleBorder())
-paintBtn.addEventListener('click', paint);
+
+
 window.onload = () => {
     setupGrid(currentSize)
     spanBox.classList.add('clicked')
